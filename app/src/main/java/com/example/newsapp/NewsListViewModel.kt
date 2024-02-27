@@ -35,26 +35,29 @@ class NewsListViewModel : ViewModel() {
         }
     }
 
-    private suspend fun fetchNews(category: String) {
-        try {
-            val response = withContext(Dispatchers.IO) {
-                apiCall.getTopNewsByCategory(category).execute()
-            }
-            if (response.isSuccessful) {
-                val articles = response.body()?.articles
-                articles?.let {
-                    _news.postValue(it)
-                    Log.d(TAG, "articles: $it")
-                } ?: run {
-                    Log.e(TAG, "Articles list is null or empty")
+    fun fetchNews(category: String) {
+        // Perform fetch operation based on the provided category
+        viewModelScope.launch {
+            try {
+                val response = withContext(Dispatchers.IO) {
+                    apiCall.getTopNewsByCategory(category).execute()
                 }
-            } else {
-                // Handle unsuccessful response
-                Log.e(TAG, "Failed to fetch news: ${response.errorBody()}")
+                if (response.isSuccessful) {
+                    val articles = response.body()?.articles
+                    articles?.let {
+                        _news.postValue(it)
+                        Log.d(TAG, "articles: $it")
+                    } ?: run {
+                        Log.e(TAG, "Articles list is null or empty")
+                    }
+                } else {
+                    // Handle unsuccessful response
+                    Log.e(TAG, "Failed to fetch news: ${response.errorBody()}")
+                }
+            } catch (e: Exception) {
+                // Handle network errors
+                Log.e(TAG, "Encountered error: ", e)
             }
-        } catch (e: Exception) {
-            // Handle network errors
-            Log.e(TAG, "Encountered error: ", e)
         }
     }
 }
