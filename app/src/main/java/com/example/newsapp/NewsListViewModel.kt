@@ -31,7 +31,7 @@ class NewsListViewModel : ViewModel() {
 
     init {
         viewModelScope.launch {
-            fetchNews("business")
+            fetchNews("technology")
         }
     }
 
